@@ -41,6 +41,7 @@ jobs:
         pip install --upgrade pip
         pip install cython==0.29.36 buildozer
 
+<<<<<<< HEAD
     - name: Initialize Buildozer
       run: |
         if [ ! -f buildozer.spec ]; then
@@ -51,6 +52,12 @@ jobs:
       run: |
         buildozer -v android debug
 
+=======
+    - name: Build APK
+      run: |
+        buildozer -v android debug
+
+>>>>>>> 28bddbe (Nuovo build.yml corretto)
     - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
