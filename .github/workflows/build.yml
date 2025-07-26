@@ -13,7 +13,7 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    - name: Install dependencies
+    - name: Install system dependencies
       run: |
         sudo apt update
         sudo apt install -y \
@@ -34,12 +34,20 @@ jobs:
           autoconf \
           automake \
           libtool \
-          cmake
+          cmake \
+          android-sdk \
+          android-sdk-platform-tools \
+          android-sdk-build-tools
 
-    - name: Install Buildozer
+    - name: Install Python packages
       run: |
         pip install --upgrade pip
-        pip install Cython==0.29.36 buildozer
+        pip install cython==0.29.36 buildozer
+
+    - name: Set ANDROID_HOME
+      run: |
+        echo "ANDROID_HOME=/usr/lib/android-sdk" >> $GITHUB_ENV
+        echo "PATH=\$ANDROID_HOME/tools:\$ANDROID_HOME/platform-tools:\$PATH" >> $GITHUB_ENV
 
     - name: Initialize Buildozer
       run: |
@@ -48,7 +56,8 @@ jobs:
         fi
 
     - name: Build APK
-      run: buildozer android debug
+      run: |
+        buildozer -v android debug
 
     - name: Upload APK
       uses: actions/upload-artifact@v4
