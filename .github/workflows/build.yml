@@ -37,17 +37,19 @@ jobs:
           cmake \
           wget
 
-    - name: Install Android SDK (with AIDL)
+    - name: Install Android SDK + AIDL
       run: |
-        ANDROID_SDK_ROOT=$HOME/android-sdk
+        export ANDROID_SDK_ROOT=$HOME/android-sdk
         mkdir -p $ANDROID_SDK_ROOT
         cd $HOME
         wget https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O cmdtools.zip
         unzip cmdtools.zip -d $ANDROID_SDK_ROOT/cmdline-tools
         mv $ANDROID_SDK_ROOT/cmdline-tools/cmdline-tools $ANDROID_SDK_ROOT/cmdline-tools/latest
-        yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_SDK_ROOT "platform-tools" "platforms;android-33" "build-tools;33.0.2"
+        yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_SDK_ROOT "platform-tools" "platforms;android-33" "build-tools;33.0.2" "cmdline-tools;latest"
+        yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_SDK_ROOT --install "platform-tools" "build-tools;33.0.2"
 
         echo "ANDROID_HOME=$ANDROID_SDK_ROOT" >> $GITHUB_ENV
+        echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT" >> $GITHUB_ENV
         echo "PATH=$ANDROID_SDK_ROOT/platform-tools:$ANDROID_SDK_ROOT/build-tools/33.0.2:$PATH" >> $GITHUB_ENV
 
     - name: Install Python packages
@@ -56,6 +58,9 @@ jobs:
         pip install cython==0.29.36 buildozer
 
     - name: Build APK
+      env:
+        ANDROIDSDK: ${{ env.ANDROID_SDK_ROOT }}
+        ANDROIDNDK: ${{ env.ANDROID_SDK_ROOT }}/ndk-bundle
       run: |
         buildozer -v android debug
 
